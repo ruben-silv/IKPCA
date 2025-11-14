@@ -127,7 +127,7 @@ interval_kpca <- function(separation_method = c("SVM", "LDA"),
       transformed_data_test[i, ] <- t(Gt %*% macro_vector)
     }
   
-    #Definição K_new
+    #DefiniÃ§Ã£o K_new
     projected_data_test <- matrix(0, nrow = n_test, ncol = n)
     for (d in 1:n_test) {
       
