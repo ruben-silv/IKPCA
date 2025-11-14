@@ -1,15 +1,15 @@
 library(triangle)
-#' Gera microdados para cada observação como matrizes simples sem nomes de linhas/colunas
+#' Gera microdados para cada observaÃ§Ã£o como matrizes simples sem nomes de linhas/colunas
 #'
-#' @param C          Matriz ou data.frame de centros, dimensões n × p
-#' @param R          Matriz ou data.frame de ranges, dimensões n × p
-#' @param latentDist Caractere ou vetor (comprimento p) com distribuição em [-1,1]:
+#' @param C          Matriz ou data.frame de centros, dimensÃµes n Ã— p
+#' @param R          Matriz ou data.frame de ranges, dimensÃµes n Ã— p
+#' @param latentDist Caractere ou vetor (comprimento p) com distribuiÃ§Ã£o em [-1,1]:
 #'                   "Unif", "Triang", "TNorm", "InvTri", "Beta", "KDE", "Degenerated"
-#' @param nMicro     Número inteiro de micro-pontos por observação
-#' @param TriangParam Vetor (ou único) com modo da triangular (em [-1,1])
-#' @param BetaParam.a Vetor (ou único) ?? da Beta (em [0,1] antes de mapear para [-1,1])
-#' @param BetaParam.b Vetor (ou único) ?? da Beta
-#' @return Lista de comprimento n (observações). Cada elemento é uma matriz nMicro × p, sem nomes.
+#' @param nMicro     NÃºmero inteiro de micro-pontos por observaÃ§Ã£o
+#' @param TriangParam Vetor (ou Ãºnico) com modo da triangular (em [-1,1])
+#' @param BetaParam.a Vetor (ou Ãºnico) ?? da Beta (em [0,1] antes de mapear para [-1,1])
+#' @param BetaParam.b Vetor (ou Ãºnico) ?? da Beta
+#' @return Lista de comprimento n (observaÃ§Ãµes). Cada elemento Ã© uma matriz nMicro Ã— p, sem nomes.
 generateMicroData <- function(
     C, R,
     latentDist,
@@ -21,7 +21,7 @@ generateMicroData <- function(
   C <- as.matrix(C)
   R <- as.matrix(R)
   if (!all(dim(C) == dim(R))) {
-    stop("As matrizes C e R devem ter as mesmas dimensões.")
+    stop("As matrizes C e R devem ter as mesmas dimensÃµes.")
   }
   n <- nrow(C)
   p <- ncol(C)
@@ -33,7 +33,7 @@ generateMicroData <- function(
     latentDist <- rep(latentDist, p)
   }
   if (length(latentDist) != p) {
-    stop("latentDist deve ser caractere único ou vetor de comprimento p.")
+    stop("latentDist deve ser caractere Ãºnico ou vetor de comprimento p.")
   }
   if (length(TriangParam) == 1) TriangParam <- rep(TriangParam, p)
   if (length(TriangParam) != p) {
@@ -91,9 +91,9 @@ generateMicroData <- function(
       return(U)
     }
     if (dist == "KDE") {
-      stop("Distribuição 'KDE' requer microdados para estimar densidade. Não implementada.")
+      stop("DistribuiÃ§Ã£o 'KDE' requer microdados para estimar densidade. NÃ£o implementada.")
     }
-    stop("Distribuição desconhecida em sampleU().")
+    stop("DistribuiÃ§Ã£o desconhecida em sampleU().")
   }
   
   microdata_list <-  matrix(numeric(0), nrow = 0, ncol = p)
@@ -126,7 +126,7 @@ reconstruct_vertices <- function(M, p, nmic) {
   total_linhas <- nrow(M)
   
   if (total_linhas %% block_size != 0) {
-    stop("Número de linhas em M não é múltiplo exato de nmic.")
+    stop("NÃºmero de linhas em M nÃ£o Ã© mÃºltiplo exato de nmic.")
   }
   
   nblocks <- total_linhas / block_size
@@ -160,7 +160,7 @@ micro_kpca <- function(      microdata=NULL,
                              separation_method = c("SVM", "LDA"),
                              data_train,
                              data_test,
-                             label_train, #label_train e label_test devem ter a dimensão de micro e micro_teste
+                             label_train, #label_train e label_test devem ter a dimensÃ£o de micro e micro_teste
                              label_test,
                              kernel_type = c("gaussian", "linear", "polynomial"),
                              sigma_method = c("user", "medist"),
@@ -188,7 +188,7 @@ micro_kpca <- function(      microdata=NULL,
   latentdist <- data_train@LatentDist
   TriangParam <- 3*as.numeric(data_train@LatentParam[[2]])
   
-  #Definição do microdata
+  #DefiniÃ§Ã£o do microdata
   if (is.null(microdata)) {
     micro <- generateMicroData(
       C = C,
@@ -202,13 +202,13 @@ micro_kpca <- function(      microdata=NULL,
     dimnames(micro) <- NULL
   }
   
-  #Definição do Sigma
+  #DefiniÃ§Ã£o do Sigma
   if (kernel_type == "gaussian") {
     if (sigma_method == "medist") {
       dist_matrix <- as.matrix(dist(micro))
       sigma <- mean(dist_matrix[lower.tri(dist_matrix)])
     } else if (is.null(sigma)) {
-      stop("O parâmetro sigma deve ser fornecido se kernel_type = 'gaussian' e sigma_method = 'user'.")
+      stop("O parÃ¢metro sigma deve ser fornecido se kernel_type = 'gaussian' e sigma_method = 'user'.")
     }
   }
   
@@ -235,17 +235,17 @@ micro_kpca <- function(      microdata=NULL,
   K <- (diag(m) - ones_m) %*% K %*% (diag(m) - ones_m)
   
   
-  #Projeção dos dados--------------
+  #ProjeÃ§Ã£o dos dados--------------
   eig <- eigen(K, symmetric = TRUE)
   lambda <- eig$values
   V <- eig$vectors
   projected_data <- K %*% V %*% diag(1 / sqrt(abs(lambda)))
   
-  #Definição dos 80%--------------
+  #DefiniÃ§Ã£o dos 80%--------------
   expl <- cumsum(lambda) / sum(lambda)
   pcexp <- which(expl >= 0.8)[1]
   
-  #Projeção data_test---------------
+  #ProjeÃ§Ã£o data_test---------------
     #Setup Inicial
     C_test <- as.matrix(data_test@Centers)
     R_test <- as.matrix(data_test@Ranges)
@@ -253,7 +253,7 @@ micro_kpca <- function(      microdata=NULL,
     p_test <- ncol(C_test)
     latentdist_test <- data_test@LatentDist
     
-    #Definição do microdata_test
+    #DefiniÃ§Ã£o do microdata_test
     if (is.null(microdata_test)) {
       micro_test <- generateMicroData(
         C = C_test,
@@ -266,7 +266,7 @@ micro_kpca <- function(      microdata=NULL,
       dimnames(micro_test) <- NULL
     }
     
-    #Definição K_new
+    #DefiniÃ§Ã£o K_new
     projected_data_test <- matrix(0, nrow = nrow(micro_test), ncol = nrow(micro))
     for (d in 1:nrow(micro_test)) {
       
@@ -290,7 +290,7 @@ micro_kpca <- function(      microdata=NULL,
       projected_data_test[d, ] <- (t(k_new_centered) %*% V %*% diag(1 / sqrt(lambda)))
     }
     
-    #Construção do modelo SVM vs LDA------------------
+    #ConstruÃ§Ã£o do modelo SVM vs LDA------------------
     if (separation_method == "SVM") {
       
       svm_model <- svm(x = micro, y = as.factor(label_train), kernel = "linear")
@@ -343,14 +343,14 @@ micro_kpca <- function(      microdata=NULL,
   
   
     
-  #Reconstruir os retângulos
+  #Reconstruir os retÃ¢ngulos
   mcar <- reconstruct_vertices(projected_data_test[,1:pcexp],p,nmic)
   classif <- class_pos
   
   block_size_micro <- nmic
   nrect <- length(classif) / block_size_micro
   if (nrect != floor(nrect)) {
-    stop("length(classif) não é múltiplo de nmic.")
+    stop("length(classif) nÃ£o Ã© mÃºltiplo de nmic.")
   }
   nrect <- as.integer(nrect)
   
@@ -364,12 +364,12 @@ micro_kpca <- function(      microdata=NULL,
   block_size_vertices <- 2^p
   nblocks <- nrow(mcar) / block_size_vertices
   if (nblocks != floor(nblocks)) {
-    stop("nrow(mcar) não é múltiplo de 2^p (número de vértices por retângulo).")
+    stop("nrow(mcar) nÃ£o Ã© mÃºltiplo de 2^p (nÃºmero de vÃ©rtices por retÃ¢ngulo).")
   }
   nblocks <- as.integer(nblocks)
   
   if (nblocks != nrect) {
-    stop("Número de retângulos inconsistente entre micro (nrect) e vértices (nblocks).")
+    stop("NÃºmero de retÃ¢ngulos inconsistente entre micro (nrect) e vÃ©rtices (nblocks).")
   }
   
   if (ncol(mcar) >= 2) {
@@ -379,7 +379,7 @@ micro_kpca <- function(      microdata=NULL,
     border_cols <- pal[as.integer(rect_fac)]
     
     plot(NA, xlim = xlim, ylim = ylim, xlab = "PC1", ylab = "PC2",
-         main = paste0("Plot de ", nblocks, " retângulos"))
+         main = paste0("Plot de ", nblocks, " retÃ¢ngulos"))
     
     for (i in seq_len(nblocks)) {
       idx_vert <- ((i - 1) * block_size_vertices + 1):(i * block_size_vertices)
@@ -391,7 +391,7 @@ micro_kpca <- function(      microdata=NULL,
   }
   
   
-  #Definição label do macrodado
+  #DefiniÃ§Ã£o label do macrodado
   label_rect <- label_test[seq(1, length(label_test), by = nmic)]
   
   all_labels <- sort(unique(c(label_rect, rect_classif)))
