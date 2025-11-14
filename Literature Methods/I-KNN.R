@@ -1,9 +1,9 @@
 library(class)
 
-#' @param train_mat   Matriz de treino (n × p)
+#' @param train_mat   Matriz de treino (n Ã— p)
 #' @param train_labels Fator ou vetor de labels de comprimento n
-#' @param test_mat    Matriz de teste (m × p)
-#' @param k           Número de vizinhos (padrão = 5)
+#' @param test_mat    Matriz de teste (m Ã— p)
+#' @param k           NÃºmero de vizinhos (padrÃ£o = 5)
 #' @return Fator com as labels previstas para cada linha de test_mat
 #' @examples
 
