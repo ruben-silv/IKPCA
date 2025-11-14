@@ -106,13 +106,13 @@ vertices_kpca <- function(separation_method = c("SVM", "LDA"),
   
   micro <- generate_vertices(C,R)
   
-  #Definição do Sigma------------
+  #DefiniÃ§Ã£o do Sigma------------
   if (kernel_type == "gaussian") {
     if (sigma_method == "medist") {
       dist_matrix <- as.matrix(dist(micro))
       sigma <- mean(dist_matrix[lower.tri(dist_matrix)])
     }else if (is.null(sigma)) {
-      stop("O parâmetro sigma deve ser fornecido se kernel_type = 'gaussian' e sigma_method = 'user'.")
+      stop("O parÃ¢metro sigma deve ser fornecido se kernel_type = 'gaussian' e sigma_method = 'user'.")
     }
   }
   
@@ -139,7 +139,7 @@ vertices_kpca <- function(separation_method = c("SVM", "LDA"),
   K <- (diag(m) - ones_m) %*% K %*% (diag(m) - ones_m)
   
   
-  #Projeção dos dados--------------
+  #ProjeÃ§Ã£o dos dados--------------
   eig <- eigen(K, symmetric = TRUE)
   lambda <- eig$values
   V <- eig$vectors
@@ -147,12 +147,12 @@ vertices_kpca <- function(separation_method = c("SVM", "LDA"),
   
   
   
-  #Definição dos 80%--------------
+  #DefiniÃ§Ã£o dos 80%--------------
   expl <- cumsum(lambda) / sum(lambda)
   pcexp <- which(expl >= 0.8)[1]
   
  
-  #Projeção data_test---------------
+  #ProjeÃ§Ã£o data_test---------------
     #Setup Inicial
     C_test <- as.matrix(data_test@Centers)
     R_test <- as.matrix(data_test@Ranges)
@@ -162,7 +162,7 @@ vertices_kpca <- function(separation_method = c("SVM", "LDA"),
     #Gera os microdados---------
     micro_test <- generate_vertices(C_test,R_test)
     
-    #Definição K_new
+    #DefiniÃ§Ã£o K_new
     m_test <- n_test*(2^p)
     projected_data_test <- matrix(0, nrow = m_test, ncol = m)
     for (d in 1:m_test) {
@@ -187,7 +187,7 @@ vertices_kpca <- function(separation_method = c("SVM", "LDA"),
       projected_data_test[d, ] <- (t(k_new_centered) %*% V %*% diag(1 / sqrt(lambda)))
     }
     
-    #Construção do modelo SVM vs LDA------------------
+    #ConstruÃ§Ã£o do modelo SVM vs LDA------------------
     if (separation_method == "SVM") {
       
       svm_model <- svm(x = micro, y = as.factor(label_train), kernel = "linear")
@@ -239,14 +239,14 @@ vertices_kpca <- function(separation_method = c("SVM", "LDA"),
     }
     
 
-  #Reconstruir os retângulos  
+  #Reconstruir os retÃ¢ngulos  
   mcar <- reconstruct_vertices_v(projected_data_test[,1:pcexp],p_test)
   classif <- class_pos
 
   block_size <- 2^p
   nblocks <- nrow(mcar) / block_size
   if (nblocks != floor(nblocks)) {
-    stop("nrow(mcar) não é múltiplo inteiro de 2^p_test.")
+    stop("nrow(mcar) nÃ£o Ã© mÃºltiplo inteiro de 2^p_test.")
   }
   
   rect_classif <- integer(nblocks)
@@ -285,7 +285,7 @@ vertices_kpca <- function(separation_method = c("SVM", "LDA"),
     }
   }
   
-  #Definição label do macrodado
+  #DefiniÃ§Ã£o label do macrodado
   label_rect <- label_test[seq(1, length(label_test), by = 2^p)]
   
   all_labels <- sort(unique(c(label_rect, rect_classif)))
